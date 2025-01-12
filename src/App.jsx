@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Watchlist from "./Watchlist";
+import Home from "./Home";
+import { WatchListContext } from "./contexts";
 
 function App () {
+    const [watchlist, setWatchlist] = useState([])
     const [movieArray, setMovieArray] = useState([])
     const [loading, setLoading] = useState(true)
-    const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
+    const API_KEY = import.meta.env.VITE_REACT_APP_TMDB_API_KEY;
 
     async function fetchMovies() {
-        const tmdbMovies = await fetch(`https://api.themoviedb.org/3/search/movie?${API_KEY}=YOUR_API_KEY&query=inception`)
+        const tmdbMovies = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=inception`);
         const movies = await tmdbMovies.json()
-        setMovieArray(movies)
+        setMovieArray(movies.results)
         setLoading(false)
     }
 
@@ -19,11 +23,14 @@ function App () {
     },[])
 
     return (
+        <WatchListContext.Provider value={[watchlist, setWatchlist]}>
         <BrowserRouter>
             <Routes>
-                <Route path="/Home" element={<Home movieArray={movieArray}/>} />
+                <Route path="/" element={<Home movieArray={movieArray}/>} />
+                <Route path="/watchlist" element={<Watchlist/>} />
             </Routes>
         </BrowserRouter>
+        </WatchListContext.Provider>
     )
 }
 
